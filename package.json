@@ -1,0 +1,17 @@
+{
+  "name": "sunrating",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "cheerio": "^0.22.0",
+    "request": "^2.79.0",
+    "underscore": "^1.8.3"
+  }
+}
