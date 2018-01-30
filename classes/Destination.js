@@ -23,13 +23,14 @@ class Destination {
 	}
 	_request() {
 		return new Promise((resolve, reject) => {
-			console.log('Destination', this.data.identifier,  '_request');
+			console.log('Destination', this.data.identifier,  '_request', this.baseUrl + 'skigebieden/' + this.data.identifier + '/weersverwachting');
 			request({
 				uri: this.baseUrl + 'skigebieden/' + this.data.identifier + '/weersverwachting'
 			}, (error, response, body) => {
 				if (error) {
 					return reject(error);
 				}
+				//console.log('body', body);
 				fs.writeFileSync('dest.html', body.toString());
 				return resolve(body);
 			})
@@ -44,18 +45,21 @@ class Destination {
 				tempMountain: [],
 				tempVillage: [],
 				wind: [],
-				snowMountain: [],
-				snowVillage: [],
+				snow: [],
 				sun: []
 			}
 			$(weatherTable).find('tbody tr').each((idx, itm) => {
 				try {
-					if ($(weatherTable).find('tbody tr').length == 8) {
+					if ($(weatherTable).find('tbody tr').length == 13) {
 						switch(idx) {
 							case 0:
 								// icons
 								$(itm).find('td').each((innerIdx, innerItem) => {
-									obj.weatherType.push($(innerItem).find('i').attr('class').replace('ws ws-zp ws-2x ', ''));
+									let src = $(innerItem).find('img').get(0).attribs.src;
+									let splits = src.split('weather/');
+									let iconName = splits[1];
+									let icon = null;
+									obj.weatherType.push(iconName);
 								});
 								break;
 							case 1:
@@ -79,20 +83,31 @@ class Destination {
 							case 4:
 								// zero line
 								break;
-							case 5:
+							case 6:
 								// snowfall
 								$(itm).find('td').each((innerIdx, innerItem) => {
-									var snowMountain = parseInt($(innerItem).attr('data-value'));
-									var snowVillage = parseInt($(innerItem).attr('data-value-valley'));
-									obj.snowMountain.push(snowMountain);
-									obj.snowVillage.push(snowVillage);
+									let div = $(innerItem).find('div');
+									if (div.length == 1) {
+										let data = div.get(0).children[0].data;
+										var snow = parseInt(data);
+										obj.snow.push(snow);
+									
+									} else {
+										obj.snow.push(0);
+									}
+									
 								});
 								break;
-							case 6:
+							case 11:
 								// sun
 								$(itm).find('td').each((innerIdx, innerItem) => {
-									var sunNumber = parseInt($(innerItem).attr('class').replace('sungrade-', ''));
-									obj.sun.push(sunNumber);
+									try {
+										var sunNumber = parseInt($(innerItem).attr('class').replace('sungrade-', ''));
+										obj.sun.push(sunNumber);
+									} catch (e) {
+										console.log(e);
+										obj.sun.push(-9999999);
+									}
 								});
 								break;
 						}
@@ -101,7 +116,11 @@ class Destination {
 							case 0:
 								// icons
 								$(itm).find('td').each((innerIdx, innerItem) => {
-									obj.weatherType.push($(innerItem).find('i').attr('class').replace('ws ws-zp ws-2x ', ''));
+									let src = $(innerItem).find('img').get(0).attribs.src;
+									let splits = src.split('weather/');
+									let iconName = splits[1];
+									let icon = null;
+									obj.weatherType.push(iconName);
 								});
 								break;
 							case 1:
@@ -119,20 +138,31 @@ class Destination {
 							case 3:
 								// zero line
 								break;
-							case 4:
+							case 5:
 								// snowfall
 								$(itm).find('td').each((innerIdx, innerItem) => {
-									var snowMountain = parseInt($(innerItem).attr('data-value'));
-									var snowVillage = parseInt($(innerItem).attr('data-value-valley'));
-									obj.snowMountain.push(snowMountain);
-									obj.snowVillage.push(snowVillage);
+									let div = $(innerItem).find('div');
+									if (div.length == 1) {
+										let data = div.get(0).children[0].data;
+										var snow = parseInt(data);
+										obj.snow.push(snow);
+									
+									} else {
+										obj.snow.push(0);
+									}
+									
 								});
 								break;
-							case 5:
+							case 10:
 								// sun
 								$(itm).find('td').each((innerIdx, innerItem) => {
-									var sunNumber = parseInt($(innerItem).attr('class').replace('sungrade-', ''));
-									obj.sun.push(sunNumber);
+									try {
+										var sunNumber = parseInt($(innerItem).attr('class').replace('sungrade-', ''));
+										obj.sun.push(sunNumber);
+									} catch (e) {
+										console.log(e);
+										obj.sun.push(-9999999);
+									}
 								});
 								break;
 						}
@@ -143,7 +173,6 @@ class Destination {
 					fs.writeFileSync(this.data.identifier + '.html', data);
 				}
 			})
-
 			return resolve(obj);
 		});
 	}
